@@ -103,6 +103,8 @@ pub async fn validate(
     };
 
     let mut val = Validation::new(header.alg);
+    val.set_audience(&[client_id]);
+    val.set_issuer(&["https://appleid.apple.com"]);
     val.validate_exp = !ignore_expire;
     let token_data = decode::<Claims>(
         str::from_utf8(&token).unwrap(),
@@ -114,7 +116,7 @@ pub async fn validate(
         return Err(ValidateError::IssClaimMismatch);
     }
 
-    if token_data.claims.sub != client_id {
+    if token_data.claims.aud != client_id {
         return Err(ValidateError::ClientIdMismatch);
     }
     Ok(token_data)
